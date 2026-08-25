@@ -1,0 +1,15 @@
+W02 INITIAL QA — PASS
+Visible article words: 3500
+Exact `BetPro Login Sign Up` occurrences: 25
+Project keyword-token coverage: 2.86%
+Title length: 53
+Meta description length: 145
+3 WebP visuals: PASS
+Home nav: PASS
+Floating CTA: PASS
+Sitemap: PASS
+Canonical: PASS
+OG/Twitter image: PASS
+Structured data: PASS
+Review noindex: PASS
+GSC slot: PASS

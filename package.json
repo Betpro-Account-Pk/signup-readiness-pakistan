@@ -1,0 +1,13 @@
+{
+  "name": "signup-readiness-pakistan",
+  "version": "1.0.0",
+  "private": true,
+  "description": "W02 static publication served on Railway",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

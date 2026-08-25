@@ -1,0 +1,28 @@
+W02 RAILWAY INITIAL QA — PASS
+
+Platform: Railway
+Expected host: https://signup-readiness-pakistan.up.railway.app/
+Article visible words: 3500
+Exact `BetPro Login Sign Up` occurrences: 25
+Project keyword-token coverage: 2.86%
+
+Railway package.json: PASS
+Railway server.js: PASS
+Railway railway.toml: PASS
+PORT environment handling: PASS
+/health endpoint: PASS
+Review HTTP X-Robots-Tag: PASS
+Review HTML noindex: PASS
+Cloudflare-specific deployment controls removed: PASS
+
+Home menu: PASS
+Floating Get New ID CTA: PASS
+3 WebP visuals: PASS
+Sitemap: PASS
+robots.txt: PASS
+Canonical: PASS
+OG/Twitter image: PASS
+Structured data: PASS
+GSC slot: PASS
+
+Initial approval package only. Do not switch to index before approval + GSC token.

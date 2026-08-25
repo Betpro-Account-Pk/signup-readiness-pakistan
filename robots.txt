@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://signup-readiness-pakistan.up.railway.app/sitemap.xml
