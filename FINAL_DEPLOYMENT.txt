@@ -1,0 +1,23 @@
+W02 FINAL RAILWAY DEPLOYMENT
+
+Live Railway URL:
+https://signup-readiness-pakistan-production.up.railway.app/
+
+Google Search Console verification tag is already inserted:
+<meta name="google-site-verification" content="GhwFOjGVuOK1b49xzTyGfWPRZWazSXRRJCrMUa2Y2Dw" />
+
+This package is production/index-ready.
+
+DEPLOY:
+Replace/push the complete repository contents with this FINAL package.
+Railway should redeploy automatically.
+
+AFTER DEPLOYMENT:
+1. Inspect the homepage.
+2. In GSC click Verify.
+3. Submit: https://signup-readiness-pakistan-production.up.railway.app/sitemap.xml
+4. URL Inspection: https://signup-readiness-pakistan-production.up.railway.app/
+5. Request indexing.
+6. Close W02.
+
+Keep the GSC verification meta tag after verification.

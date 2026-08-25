@@ -1,0 +1,22 @@
+W02 FINAL RAILWAY QA — PASS
+
+Live host: https://signup-readiness-pakistan-production.up.railway.app/
+Article visible words: 3500
+Exact `BetPro Login Sign Up` occurrences: 25
+Project keyword-token coverage: 2.86%
+
+Editorial cleanup: PASS
+Actual Railway hostname: PASS
+GSC verification tag: PASS
+All public HTML index,follow: PASS
+No production X-Robots noindex: PASS
+Home navigation: PASS
+Floating Get New ID CTA: PASS
+3 WebP visuals: PASS
+sitemap.xml: PASS
+robots.txt sitemap declaration: PASS
+OG/Twitter image: PASS
+Structured data: PASS
+/health: PASS
+Private source/config files blocked from HTTP access: PASS
+Local Railway production-server QA: PASS

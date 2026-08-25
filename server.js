@@ -4,69 +4,66 @@ const path = require("path");
 
 const ROOT = __dirname;
 const PORT = Number(process.env.PORT || 3000);
-const REVIEW_MODE = true;
 
 const mime = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
-  ".js": "application/javascript; charset=utf-8",
-  ".json": "application/json; charset=utf-8",
   ".xml": "application/xml; charset=utf-8",
   ".txt": "text/plain; charset=utf-8",
   ".svg": "image/svg+xml",
   ".webp": "image/webp",
-  ".png": "image/png",
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".ico": "image/x-icon"
+  ".webmanifest": "application/manifest+json; charset=utf-8"
 };
 
-function safeJoin(urlPath) {
-  const decoded = decodeURIComponent(urlPath.split("?")[0]);
-  const normalized = path.posix.normalize(decoded);
-  const relative = normalized.replace(/^\/+/, "");
-  const file = path.resolve(ROOT, relative);
-  if (!file.startsWith(ROOT)) return null;
-  return file;
+const PUBLIC_EXACT = new Set([
+  "/", "/about/", "/editorial-policy/", "/privacy/",
+  "/responsible-use/", "/contact/", "/robots.txt",
+  "/sitemap.xml", "/favicon.svg", "/site.webmanifest"
+]);
+
+function normalizedPath(url) {
+  try {
+    const raw = decodeURIComponent(url.split("?")[0]);
+    const p = path.posix.normalize(raw);
+    return p.startsWith("/") ? p : "/" + p;
+  } catch (_) {
+    return null;
+  }
 }
 
-function candidateFiles(urlPath) {
-  let raw = urlPath.split("?")[0];
-  if (raw === "/") return [path.join(ROOT, "index.html")];
-  const base = safeJoin(raw);
-  if (!base) return [];
-  const ext = path.extname(base);
-  if (ext) return [base];
-  return [
-    base,
-    path.join(base, "index.html"),
-    base + ".html"
-  ];
+function isPublicPath(p) {
+  if (!p) return false;
+  if (PUBLIC_EXACT.has(p)) return true;
+  return p.startsWith("/assets/") && /\.(css|webp|svg)$/i.test(p);
+}
+
+function fileForPublicPath(p) {
+  if (p === "/") return path.join(ROOT, "index.html");
+  if (p === "/about/") return path.join(ROOT, "about", "index.html");
+  if (p === "/editorial-policy/") return path.join(ROOT, "editorial-policy", "index.html");
+  if (p === "/privacy/") return path.join(ROOT, "privacy", "index.html");
+  if (p === "/responsible-use/") return path.join(ROOT, "responsible-use", "index.html");
+  if (p === "/contact/") return path.join(ROOT, "contact", "index.html");
+  return path.join(ROOT, p.replace(/^\/+/, ""));
 }
 
 function headersFor(filePath) {
   const ext = path.extname(filePath).toLowerCase();
-  const h = {
+  const headers = {
     "Content-Type": mime[ext] || "application/octet-stream",
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "SAMEORIGIN",
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
   };
-
-  if (REVIEW_MODE) {
-    h["X-Robots-Tag"] = "noindex, follow";
-  }
-
-  if (ext === ".webp" || ext === ".svg" || ext === ".png" || ext === ".jpg" || ext === ".jpeg") {
-    h["Cache-Control"] = "public, max-age=31536000, immutable";
+  if (/\.(webp|svg)$/i.test(filePath)) {
+    headers["Cache-Control"] = "public, max-age=31536000, immutable";
   } else if (ext === ".css") {
-    h["Cache-Control"] = "public, max-age=3600, must-revalidate";
+    headers["Cache-Control"] = "public, max-age=3600, must-revalidate";
   } else {
-    h["Cache-Control"] = "public, max-age=0, must-revalidate";
+    headers["Cache-Control"] = "public, max-age=0, must-revalidate";
   }
-
-  return h;
+  return headers;
 }
 
 const server = http.createServer((req, res) => {
@@ -76,34 +73,40 @@ const server = http.createServer((req, res) => {
     return res.end("Method Not Allowed");
   }
 
-  if (req.url.split("?")[0] === "/health") {
+  const p = normalizedPath(req.url);
+
+  if (p === "/health") {
     res.writeHead(200, {"Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store"});
     return res.end(method === "HEAD" ? undefined : "ok");
   }
 
-  if (req.url.split("?")[0] === "/index.html" || req.url.split("?")[0] === "/home") {
+  if (p === "/index.html" || p === "/home") {
     res.writeHead(301, {"Location": "/"});
     return res.end();
   }
 
-  for (const candidate of candidateFiles(req.url)) {
-    try {
-      const stat = fs.statSync(candidate);
-      if (!stat.isFile()) continue;
-      const headers = headersFor(candidate);
-      res.writeHead(200, headers);
-      if (method === "HEAD") return res.end();
-      return fs.createReadStream(candidate).pipe(res);
-    } catch (_) {}
+  if (!isPublicPath(p)) {
+    const notFound = path.join(ROOT, "404.html");
+    res.writeHead(404, headersFor(notFound));
+    if (method === "HEAD") return res.end();
+    return fs.createReadStream(notFound).pipe(res);
   }
 
-  const notFound = path.join(ROOT, "404.html");
-  const headers = headersFor(notFound);
-  res.writeHead(404, headers);
-  if (method === "HEAD") return res.end();
-  return fs.createReadStream(notFound).pipe(res);
+  const file = fileForPublicPath(p);
+  try {
+    const stat = fs.statSync(file);
+    if (!stat.isFile()) throw new Error("not-file");
+    res.writeHead(200, headersFor(file));
+    if (method === "HEAD") return res.end();
+    return fs.createReadStream(file).pipe(res);
+  } catch (_) {
+    const notFound = path.join(ROOT, "404.html");
+    res.writeHead(404, headersFor(notFound));
+    if (method === "HEAD") return res.end();
+    return fs.createReadStream(notFound).pipe(res);
+  }
 });
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`W02 review server listening on ${PORT}`);
+  console.log(`W02 production server listening on ${PORT}`);
 });
